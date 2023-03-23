@@ -14,10 +14,11 @@ export default class NewTaskForm extends React.Component {
 
   submitHandler = (e) => {
     e.preventDefault();
-    this.props.onTaskCreate(this.state.label);
-    this.setState({
-      label: '',
-    });
+    const trimmedLabel = this.state.label.trim();
+    if (trimmedLabel) {
+      this.props.onTaskCreate(trimmedLabel);
+      this.setState({ label: '' });
+    }
   };
 
   changeHandler = (e) => {

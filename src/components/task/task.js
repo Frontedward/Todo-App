@@ -32,8 +32,14 @@ export default class Task extends Component {
   };
 
   onTaskEdit = (e) => {
+    const text = e.target.value.trimStart();
+    if (!text) {
+      alert('Ошибка: текст не может быть пустым');
+      return;
+    }
+
     this.setState({
-      taskLabel: e.target.value,
+      taskLabel: text,
     });
   };
 
