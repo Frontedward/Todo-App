@@ -14,9 +14,13 @@ export default class TaskFilter extends Component {
 
     const filtersElems = filters.map((filter) => (
       <li key={filter.param}>
-        <button type="button" className={filter.active ? 'selected' : ''} onClick={() => onFilter(filter.param)}>
-          {filter.label}
-        </button>
+        <input type="radio"
+               name="filter"
+               id={filter.param}
+               checked={filter.active}
+               onChange={() => onFilter(filter.param)} />
+
+        <label htmlFor={filter.param}>{filter.label}</label>
       </li>
     ));
 
