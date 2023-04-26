@@ -1,22 +1,17 @@
 {
-  "name": "todo-app",
+  "name": "todo-react",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@jridgewell/sourcemap-codec": "^1.4.14",
-    "@rollup/plugin-terser": "^0.4.0",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "date-fns": "^2.29.3",
-    "immer": "^9.0.19",
-    "loader-utils": "^3.2.1",
-    "nth-check": "^2.1.1",
+    "nanoid": "^4.0.1",
     "prop-types": "^15.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-scripts": "^5.0.1",
-    "shell-quote": "^1.8.0",
+    "react-scripts": "5.0.1",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -24,8 +19,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "lint": "eslint ./src --fix",
-    "lint:fix": "eslint ./src",
+    "lint": "eslint ./src",
+    "lint:fix": "eslint ./src --fix",
     "format": "prettier ./src --write",
     "prepare": "husky install"
   },
@@ -48,23 +43,24 @@
     ]
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.21.3",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^8.37.0",
+    "@babel/core": "^7.20.12",
+    "@babel/eslint-parser": "^7.19.1",
+    "eslint": "^8.39.0",
     "eslint-config-airbnb": "^19.0.4",
-    "eslint-config-prettier": "^8.8.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-jsx-a11y": "^6.7.1",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "^7.32.2",
-    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-hooks": "^4.3.0",
     "husky": "^8.0.3",
-    "lint-staged": "^13.2.0",
-    "prettier": "^2.8.7"
+    "lint-staged": "^13.2.2",
+    "prettier": "^2.8.4"
   },
   "lint-staged": {
-    "**/*.{js,jsx}": [
+    "**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
       "npm run lint",
-      "npm run format"
+      "prettier --write"
     ]
   }
 }
