@@ -23,7 +23,3 @@ yarn-debug.log*
 yarn-error.log*
 
 .vercel
-/.husky
-/.idea
-/.eslintrc.json
-/.prettierrc.json
