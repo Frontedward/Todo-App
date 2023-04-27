@@ -1,85 +1,159 @@
-/* eslint-disable */
-import React, { Component } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import PropTypes from 'prop-types';
+import './task.css'
+import { formatDistanceToNow } from 'date-fns'
+import { Component } from 'react'
+import PropTypes from 'prop-types'
 
-import './task.css';
+import { getPadTime } from '../../getPadTime'
 
 export default class Task extends Component {
   static defaultProps = {
-    completed: false,
-    editing: false,
-    id: 100,
-    description: '',
-    createTime: new Date(),
-  };
+    label: '',
+    id: '',
+    edit: false,
+    done: false,
+    date: 0,
+  }
 
   static propTypes = {
-    completed: PropTypes.bool,
-    editing: PropTypes.bool,
-    id: PropTypes.number,
-    description: PropTypes.string,
-    createTime: PropTypes.instanceOf(Date),
-    onComplete: PropTypes.func,
-    onEditStart: PropTypes.func,
+    label: PropTypes.string,
+    id: PropTypes.string,
     onDeleted: PropTypes.func,
-  };
+    onToggleDone: PropTypes.func,
+    onToggleEdit: PropTypes.func,
+    edit: PropTypes.bool,
+    done: PropTypes.bool,
+    date: PropTypes.number,
+  }
 
   state = {
-    taskLabel: this.props.description,
-  };
+    label: this.props.label,
+    timer: new Date(),
+    time: this.props.time,
+  }
 
-  onTaskEdit = (e) => {
-    const trimmedValue = e.target.value.trimStart();
-    if (trimmedValue !== '') {
+  componentDidMount() {
+    this.timerID = setInterval(() => this.tick(), 1000)
+  }
+
+  tick() {
+    this.setState({
+      timer: new Date(),
+    })
+    if (this.props.isCounting && this.state.time !== 0) {
       this.setState({
-        taskLabel: trimmedValue,
-      });
-    } else {
-      alert('Ошибка! Строка не может быть пустой.');
+        time: this.state.time - 1,
+      })
     }
-  };
+  }
 
-  onSubmitHandler = (e) => {
-    e.preventDefault();
+  componentWillUnmount() {
+    clearInterval(this.timerID)
+  }
 
-    const { onEditEnd, id } = this.props;
-    const { taskLabel } = this.state;
-
-    onEditEnd(taskLabel, id);
-  };
-
-  getEditField = () => {
-    const { editing } = this.props;
-
-    if (editing) {
-      return (
-        <form onSubmit={this.onSubmitHandler}>
-          <input type="text" className="edit" value={this.state.taskLabel} onChange={this.onTaskEdit} />
-        </form>
-      );
+  componentDidUpdate(prevProps) {
+    if (!prevProps && prevProps.isCounting !== this.props.isCounting) {
+      clearInterval(this.timerID)
     }
-  };
+  }
 
   render() {
-    const { completed, editing, id, description, createTime, onComplete, onEditStart, onDeleted } = this.props;
+    const {
+      label,
+      id,
+      onDeleted,
+      onToggleDone,
+      onToggleEdit,
+      onToggleCount,
+      edit,
+      done,
+      date,
+      onEditChange,
+      isCounting,
+    } = this.props
 
-    const classNames = [completed ? 'completed' : '', editing ? 'editing' : ''].join(' ');
+    const creationDate = formatDistanceToNow(date, { includeSeconds: true })
+
+    let className = ''
+    if (done) {
+      className += 'completed'
+    }
+
+    if (edit) {
+      className += 'editing'
+    }
+
+    let minutes = getPadTime(Math.floor(this.state.time / 60))
+    let seconds = getPadTime(this.state.time - minutes * 60)
 
     return (
-      <li className={classNames} key={id}>
+      <li key={id} className={className}>
         <div className="view">
-          <input className="toggle" type="checkbox" id={`${id}__check`} onChange={onComplete} checked={completed} />
-          <label htmlFor={`${id}__check`}>
-            <span className="description">{description}</span>
-            <span className="created">{formatDistanceToNow(createTime)}</span>
+          <input
+            className="toggle"
+            type="checkbox"
+            checked={done}
+            readOnly={true}
+            onClick={onToggleDone}
+            name="label"
+          />
+          <label
+            onClick={() => {
+              onToggleDone()
+              if (isCounting) onToggleCount()
+            }}
+            htmlFor="label"
+          >
+            <span className="title">{label}</span>
+            <span className="description">
+              {isCounting ? (
+                <button
+                  className="icon icon-pause"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (done) return
+                    onToggleCount()
+                  }}
+                ></button>
+              ) : (
+                <button
+                  className="icon icon-play"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (done) return
+                    onToggleCount()
+                  }}
+                ></button>
+              )}
+              <span>{minutes}</span>
+              <span>:</span>
+              <span>{seconds}</span>
+            </span>
+            <span className="description">created {creationDate} ago</span>
           </label>
-          <button className="icon icon-edit" onClick={onEditStart} />
-          <button className="icon icon-destroy" onClick={onDeleted} />
+          <button className="icon icon-edit" onClick={onToggleEdit}></button>
+          <button className="icon icon-destroy" onClick={onDeleted}></button>
         </div>
-
-        {this.getEditField()}
+        {edit && (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              onEditChange(this.state.label ? this.state.label : this.props.label)
+              onToggleEdit(id)
+            }}
+          >
+            <input
+              type="text"
+              className="edit"
+              value={this.state.label}
+              onChange={(e) => {
+                this.setState({
+                  label: e.target.value,
+                })
+              }}
+            />
+          </form>
+        )}
       </li>
-    );
+    )
   }
 }

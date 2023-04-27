@@ -1,36 +1,33 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import './footer.css'
+import { Component } from 'react'
+import PropTypes from 'prop-types'
 
-import './footer.css';
-
-import TaskFilter from '../tasks-filter';
+import TasksFilter from '../tasks-filter/task-filter'
 
 export default class Footer extends Component {
   static defaultProps = {
-    todoCount: 0,
-    onFilter: () => {},
-    onClearActive: () => {},
-  };
+    filter: 'all',
+    tasksLeft: 0,
+  }
 
   static propTypes = {
-    todoCount: PropTypes.number,
-    onFilter: PropTypes.func,
-    onClearActive: PropTypes.func,
-  };
+    filter: PropTypes.string,
+    onFilterChange: PropTypes.func,
+    deleteCompleted: PropTypes.func,
+    tasksLeft: PropTypes.number,
+  }
 
   render() {
-    const { todoCount, onFilter, onClearActive, filters } = this.props;
+    const { filter, onFilterChange, deleteCompleted, tasksLeft } = this.props
 
     return (
       <footer className="footer">
-        <span className="todo-count">{todoCount} items left</span>
-
-        <TaskFilter onFilter={onFilter} filters={filters} />
-
-        <button className="clear-completed" onClick={onClearActive}>
+        <span className="todo-count">{tasksLeft} items left</span>
+        <TasksFilter filter={filter} onFilterChange={onFilterChange} />
+        <button className="clear-completed" onClick={deleteCompleted}>
           Clear completed
         </button>
       </footer>
-    );
+    )
   }
 }

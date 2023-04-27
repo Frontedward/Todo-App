@@ -6,13 +6,10 @@
   left: 0;
 }
 
-.filters li {
-  display: inline;
-  cursor: default;
-}
-
-.filters li button {
+.filters label {
   display: inline-block;
+  text-align: center;
+  cursor: default;
   color: inherit;
   margin: 3px;
   padding: 3px 7px;
@@ -21,15 +18,19 @@
   border-radius: 3px;
 }
 
-.filters li button:not(.selected) {
+.filters label input {
+  display: none;
+}
+
+.filters label:has(> input:not(.selected)) {
   cursor: pointer;
 }
 
-.filters li:hover button {
+.filters label:hover {
   border-color: rgba(175, 47, 47, 0.1);
 }
 
-.filters li button.selected {
+.filters label:has(input[type='radio']:checked) {
   border-color: rgba(175, 47, 47, 0.2);
 }
 

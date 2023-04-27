@@ -23,6 +23,12 @@
     0 16px 0 -6px #f6f6f6, 0 17px 2px -6px rgba(0, 0, 0, 0.2);
 }
 
+@media (max-width: 430px) {
+  .footer {
+    height: 50px;
+  }
+}
+
 .todo-count {
   text-align: left;
 }
@@ -41,10 +47,4 @@ html .clear-completed:active {
 
 .clear-completed:hover {
   text-decoration: underline;
-}
-
-@media (max-width: 430px) {
-  .footer {
-    height: 50px;
-  }
 }

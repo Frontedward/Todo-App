@@ -1,41 +1,42 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import './task-list.css'
+import PropTypes from 'prop-types'
 
-import Task from '../task';
+import Task from '../task/task'
 
-import './task-list.css';
+const TaskList = ({ todos, onDeleted, onToggleDone, onToggleEdit, onToggleCount, onEditChange }) => {
+  const elements = todos.map((item) => {
+    const { id, label, time, edit, done, date, isCounting } = item
 
-export default class TaskList extends Component {
-  static defaultProps = {
-    tasks: [],
-    onComplete: () => {},
-    onDeleted: () => {},
-    onEditStart: () => {},
-    onEditEnd: () => {},
-  };
-
-  static propTypes = {
-    tasks: PropTypes.array,
-    onComplete: PropTypes.func,
-    onDeleted: PropTypes.func,
-    onEditStart: PropTypes.func,
-    onEditEnd: PropTypes.func,
-  };
-
-  render() {
-    const { tasks, onComplete, onDeleted, onEditStart, onEditEnd } = this.props;
-
-    const taskElems = tasks.map((task) => (
+    return (
       <Task
-        {...task}
-        key={task.id}
-        onComplete={() => onComplete(task.id)}
-        onDeleted={() => onDeleted(task.id)}
-        onEditStart={() => onEditStart(task.id)}
-        onEditEnd={(...args) => onEditEnd(...args)}
+        label={label}
+        time={time}
+        key={id}
+        edit={edit}
+        done={done}
+        date={date}
+        isCounting={isCounting}
+        onDeleted={() => onDeleted(id)}
+        onToggleDone={() => onToggleDone(id)}
+        onToggleEdit={() => onToggleEdit(id)}
+        onToggleCount={() => onToggleCount(id)}
+        onEditChange={(label) => onEditChange(id, label)}
       />
-    ));
-
-    return <ul className="todo-list">{taskElems}</ul>;
-  }
+    )
+  })
+  return <ul className="todo-list">{elements}</ul>
 }
+
+TaskList.defaultProps = {
+  todos: [],
+}
+
+TaskList.propTypes = {
+  todos: PropTypes.array,
+  onDeleted: PropTypes.func,
+  onToggleDone: PropTypes.func,
+  onToggleEdit: PropTypes.func,
+  onEditChange: PropTypes.func,
+}
+
+export default TaskList

@@ -1,29 +1,38 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import './task-filter.css'
+import { Component } from 'react'
+import PropTypes from 'prop-types'
 
-import './task-filter.css';
+export default class TasksFilter extends Component {
+  static defaultProps = {
+    filter: '',
+  }
 
-export default class TaskFilter extends Component {
   static propTypes = {
-    onFilter: PropTypes.func.isRequired,
-    filters: PropTypes.array.isRequired,
-  };
+    filter: PropTypes.string,
+    onFilterChange: PropTypes.func,
+  }
+
+  btnFilters = [
+    { name: 'all', label: 'All' },
+    { name: 'active', label: 'Active' },
+    { name: 'completed', label: 'Completed' },
+  ]
 
   render() {
-    const { onFilter, filters } = this.props;
+    const { filter, onFilterChange } = this.props
 
-    const filtersElems = filters.map((filter) => (
-      <li key={filter.param}>
-        <input type="radio"
-               name="filter"
-               id={filter.param}
-               checked={filter.active}
-               onChange={() => onFilter(filter.param)} />
+    const btnFilters = this.btnFilters.map(({ name, label }) => {
+      const isActive = filter === name
+      const btnClass = isActive ? 'selected' : ''
+      return (
+        <label key={name} className={btnClass}>
+          {' '}
+          {label}
+          <input type={'radio'} onClick={() => onFilterChange(name)} name="filter" checked={isActive} readOnly />
+        </label>
+      )
+    })
 
-        <label htmlFor={filter.param}>{filter.label}</label>
-      </li>
-    ));
-
-    return <ul className="filters">{filtersElems}</ul>;
+    return <div className="filters">{btnFilters}</div>
   }
 }
