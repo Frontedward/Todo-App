@@ -5,21 +5,6 @@ import React, { useState, useEffect } from 'react'
 import { getPadTime } from '../../getPadTime'
 import './task.css'
 
-Task.propTypes = {
-  label: PropTypes.string,
-  id: PropTypes.string,
-  onDeleted: PropTypes.func,
-  onToggleDone: PropTypes.func,
-  onToggleEdit: PropTypes.func,
-  onToggleCount: PropTypes.func,
-  edit: PropTypes.bool,
-  done: PropTypes.bool,
-  date: PropTypes.number,
-  onEditChange: PropTypes.func,
-  isCounting: PropTypes.bool,
-  time: PropTypes.number,
-}
-
 export default function Task({
   label = '',
   id = '',
@@ -41,15 +26,12 @@ export default function Task({
   })
 
   useEffect(() => {
-    const timerID = setInterval(() => tick(), 1000)
-    return () => clearInterval(timerID)
-  }, [])
-
-  useEffect(() => {
-    if (!isCounting) {
-      clearInterval(tick)
+    let timerID
+    if (isCounting && state.time !== 0) {
+      timerID = setInterval(() => tick(), 1000)
     }
-  }, [isCounting])
+    return () => clearInterval(timerID)
+  }, [isCounting, state.time])
 
   const tick = () =>
     setState((prevState) => {
@@ -144,4 +126,19 @@ export default function Task({
       )}
     </li>
   )
+}
+
+Task.propTypes = {
+  label: PropTypes.string,
+  id: PropTypes.string,
+  onDeleted: PropTypes.func,
+  onToggleDone: PropTypes.func,
+  onToggleEdit: PropTypes.func,
+  onToggleCount: PropTypes.func,
+  edit: PropTypes.bool,
+  done: PropTypes.bool,
+  date: PropTypes.number,
+  onEditChange: PropTypes.func,
+  isCounting: PropTypes.bool,
+  time: PropTypes.number,
 }
