@@ -1,9 +1,9 @@
-import './task-list.css'
 import PropTypes from 'prop-types'
 
 import Task from '../task/task'
+import './task-list.css'
 
-const TaskList = ({ todos, onDeleted, onToggleDone, onToggleEdit, onToggleCount, onEditChange }) => {
+const TaskList = ({ todos = [], onDeleted, onToggleDone, onToggleEdit, onToggleCount, onEditChange }) => {
   const elements = todos.map((item) => {
     const { id, label, time, edit, done, date, isCounting } = item
 
@@ -24,19 +24,27 @@ const TaskList = ({ todos, onDeleted, onToggleDone, onToggleEdit, onToggleCount,
       />
     )
   })
+
   return <ul className="todo-list">{elements}</ul>
 }
 
-TaskList.defaultProps = {
-  todos: [],
-}
-
 TaskList.propTypes = {
-  todos: PropTypes.array,
-  onDeleted: PropTypes.func,
-  onToggleDone: PropTypes.func,
-  onToggleEdit: PropTypes.func,
-  onEditChange: PropTypes.func,
+  todos: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      label: PropTypes.string.isRequired,
+      time: PropTypes.number.isRequired,
+      edit: PropTypes.bool.isRequired,
+      done: PropTypes.bool.isRequired,
+      date: PropTypes.number.isRequired,
+      isCounting: PropTypes.bool.isRequired,
+    })
+  ),
+  onDeleted: PropTypes.func.isRequired,
+  onToggleDone: PropTypes.func.isRequired,
+  onToggleEdit: PropTypes.func.isRequired,
+  onToggleCount: PropTypes.func.isRequired,
+  onEditChange: PropTypes.func.isRequired,
 }
 
 export default TaskList
