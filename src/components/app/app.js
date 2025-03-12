@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { parseISO } from 'date-fns';
 
 import NewTaskForm from '../new-task-form';
 import TaskList from '../task-list/task-list';
@@ -7,8 +8,6 @@ import Footer from '../footer';
 import './app.css';
 
 export default class App extends Component {
-  lastId = 100;
-
   state = {
     tasks: [],
     activeFilter: 'all',
@@ -21,10 +20,14 @@ export default class App extends Component {
 
   createTask = (label) => ({
     description: label,
-    createTime: new Date(),
+    createTime: new Date().toISOString(),
     completed: false,
-    editing: false,
-    id: this.lastId++,
+    editing: false
+  });
+
+  transformTask = (task) => ({
+    ...task,
+    createTime: parseISO(task.createTime)
   });
 
   toggleProperty = (arr, id, prop) => {
@@ -54,15 +57,39 @@ export default class App extends Component {
   };
 
   completeTaskHandler = (id) => {
-    this.setState((state) => ({
-      tasks: this.toggleProperty(state.tasks, id, 'completed'),
-    }));
+    const task = this.state.tasks.find((t) => t.id === id);
+    
+    if (!task) {
+      console.error(`Task with id ${id} not found`);
+      return;
+    }
+
+    fetch(`http://localhost:3001/todos/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        completed: !task.completed
+      })
+    })
+      .then(response => response.json())
+      .then(updatedTask => {
+        this.setState((state) => ({
+          tasks: this.toggleProperty(state.tasks, id, 'completed'),
+        }));
+      });
   };
 
   deleteTaskHandler = (id) => {
-    this.setState(() => ({
-      tasks: this.state.tasks.filter((task) => task.id !== id),
-    }));
+    fetch(`http://localhost:3001/todos/${id}`, {
+      method: 'DELETE'
+    })
+      .then(() => {
+        this.setState((state) => ({
+          tasks: state.tasks.filter((task) => task.id !== id),
+        }));
+      });
   };
 
   editStartTaskHandler = (id) => {
@@ -79,34 +106,68 @@ export default class App extends Component {
   };
 
   editEndTaskHandler = (value, id) => {
-    this.setState((state) => {
-      const tasks = state.tasks.map((task) => {
-        if (task.id !== id) {
-          return task;
-        }
-        return {
-          ...task,
-          editing: false,
-          description: value,
-        };
-      });
+    fetch(`http://localhost:3001/todos/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        description: value
+      })
+    })
+      .then(response => response.json())
+      .then(updatedTask => {
+        this.setState((state) => {
+          const tasks = state.tasks.map((task) => {
+            if (task.id !== id) {
+              return task;
+            }
+            return {
+              ...task,
+              editing: false,
+              description: value,
+            };
+          });
 
-      return {
-        tasks,
-      };
-    });
+          return {
+            tasks,
+          };
+        });
+      });
   };
 
   onTaskCreate = (label) => {
-    this.setState((state) => ({
-      tasks: [this.createTask(label), ...state.tasks],
-    }));
+    const newTask = this.createTask(label);
+    
+    fetch('http://localhost:3001/todos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newTask)
+    })
+      .then(response => response.json())
+      .then(task => {
+        this.setState((state) => ({
+          tasks: [this.transformTask(task), ...state.tasks],
+        }));
+      });
   };
 
   onClearActive = () => {
-    this.setState((state) => ({
-      tasks: state.tasks.filter((task) => !task.completed),
-    }));
+    const completedTasks = this.state.tasks.filter(task => task.completed);
+    
+    Promise.all(
+      completedTasks.map(task =>
+        fetch(`http://localhost:3001/todos/${task.id}`, {
+          method: 'DELETE'
+        })
+      )
+    ).then(() => {
+      this.setState((state) => ({
+        tasks: state.tasks.filter((task) => !task.completed),
+      }));
+    });
   };
 
   filterHandler = (param) => {
@@ -122,6 +183,16 @@ export default class App extends Component {
       };
     });
   };
+
+  componentDidMount() {
+    fetch('http://localhost:3001/todos')
+      .then(response => response.json())
+      .then(todos => {
+        this.setState({
+          tasks: todos.map(this.transformTask)
+        });
+      });
+  }
 
   render() {
     const { tasks, filters } = this.state;

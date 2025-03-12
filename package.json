@@ -24,6 +24,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "server": "json-server --watch db.json --port 3001",
     "lint": "eslint ./src --fix",
     "lint:fix": "eslint ./src",
     "format": "prettier ./src --write",
@@ -58,6 +59,7 @@
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "husky": "^8.0.3",
+    "json-server": "^1.0.0-beta.3",
     "lint-staged": "^13.2.0",
     "prettier": "^2.8.7"
   },
