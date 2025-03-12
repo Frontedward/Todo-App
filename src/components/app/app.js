@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { parseISO } from 'date-fns';
 
 import NewTaskForm from '../new-task-form';
@@ -7,30 +7,28 @@ import Footer from '../footer';
 
 import './app.css';
 
-export default class App extends Component {
-  state = {
-    tasks: [],
-    activeFilter: 'all',
-    filters: [
-      { label: 'All', param: 'all', active: true },
-      { label: 'Active', param: 'active', active: false },
-      { label: 'Completed', param: 'completed', active: false },
-    ],
-  };
+const App = () => {
+  const [tasks, setTasks] = useState([]);
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [filters, setFilters] = useState([
+    { label: 'All', param: 'all', active: true },
+    { label: 'Active', param: 'active', active: false },
+    { label: 'Completed', param: 'completed', active: false },
+  ]);
 
-  createTask = (label) => ({
+  const createTask = (label) => ({
     description: label,
     createTime: new Date().toISOString(),
     completed: false,
     editing: false
   });
 
-  transformTask = (task) => ({
+  const transformTask = useCallback((task) => ({
     ...task,
     createTime: parseISO(task.createTime)
-  });
+  }), []);
 
-  toggleProperty = (arr, id, prop) => {
+  const toggleProperty = (arr, id, prop) => {
     const elIdx = arr.findIndex((el) => el.id === id);
     const el = arr[elIdx];
 
@@ -42,9 +40,7 @@ export default class App extends Component {
     return [...arr.slice(0, elIdx), newEl, ...arr.slice(elIdx + 1, arr.length)];
   };
 
-  getFilteredTasks = () => {
-    const { activeFilter, tasks } = this.state;
-
+  const getFilteredTasks = useCallback(() => {
     if (activeFilter === 'all') {
       return tasks;
     }
@@ -54,10 +50,10 @@ export default class App extends Component {
     if (activeFilter === 'active') {
       return tasks.filter((task) => !task.completed);
     }
-  };
+  }, [activeFilter, tasks]);
 
-  completeTaskHandler = (id) => {
-    const task = this.state.tasks.find((t) => t.id === id);
+  const completeTaskHandler = useCallback((id) => {
+    const task = tasks.find((t) => t.id === id);
     
     if (!task) {
       console.error(`Task with id ${id} not found`);
@@ -74,38 +70,30 @@ export default class App extends Component {
       })
     })
       .then(response => response.json())
-      .then(updatedTask => {
-        this.setState((state) => ({
-          tasks: this.toggleProperty(state.tasks, id, 'completed'),
-        }));
+      .then(() => {
+        setTasks(prevTasks => toggleProperty(prevTasks, id, 'completed'));
       });
-  };
+  }, [tasks]);
 
-  deleteTaskHandler = (id) => {
+  const deleteTaskHandler = useCallback((id) => {
     fetch(`http://localhost:3001/todos/${id}`, {
       method: 'DELETE'
     })
       .then(() => {
-        this.setState((state) => ({
-          tasks: state.tasks.filter((task) => task.id !== id),
-        }));
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== id));
       });
-  };
+  }, []);
 
-  editStartTaskHandler = (id) => {
-    this.setState((state) => {
-      const tasks = state.tasks.map((task) => ({
+  const editStartTaskHandler = useCallback((id) => {
+    setTasks(prevTasks => 
+      prevTasks.map(task => ({
         ...task,
         editing: task.id === id,
-      }));
+      }))
+    );
+  }, []);
 
-      return {
-        tasks,
-      };
-    });
-  };
-
-  editEndTaskHandler = (value, id) => {
+  const editEndTaskHandler = useCallback((value, id) => {
     fetch(`http://localhost:3001/todos/${id}`, {
       method: 'PATCH',
       headers: {
@@ -116,9 +104,9 @@ export default class App extends Component {
       })
     })
       .then(response => response.json())
-      .then(updatedTask => {
-        this.setState((state) => {
-          const tasks = state.tasks.map((task) => {
+      .then(() => {
+        setTasks(prevTasks =>
+          prevTasks.map(task => {
             if (task.id !== id) {
               return task;
             }
@@ -127,17 +115,13 @@ export default class App extends Component {
               editing: false,
               description: value,
             };
-          });
-
-          return {
-            tasks,
-          };
-        });
+          })
+        );
       });
-  };
+  }, []);
 
-  onTaskCreate = (label) => {
-    const newTask = this.createTask(label);
+  const onTaskCreate = useCallback((label) => {
+    const newTask = createTask(label);
     
     fetch('http://localhost:3001/todos', {
       method: 'POST',
@@ -148,14 +132,12 @@ export default class App extends Component {
     })
       .then(response => response.json())
       .then(task => {
-        this.setState((state) => ({
-          tasks: [this.transformTask(task), ...state.tasks],
-        }));
+        setTasks(prevTasks => [transformTask(task), ...prevTasks]);
       });
-  };
+  }, [transformTask]);
 
-  onClearActive = () => {
-    const completedTasks = this.state.tasks.filter(task => task.completed);
+  const onClearActive = useCallback(() => {
+    const completedTasks = tasks.filter(task => task.completed);
     
     Promise.all(
       completedTasks.map(task =>
@@ -164,63 +146,54 @@ export default class App extends Component {
         })
       )
     ).then(() => {
-      this.setState((state) => ({
-        tasks: state.tasks.filter((task) => !task.completed),
-      }));
+      setTasks(prevTasks => prevTasks.filter(task => !task.completed));
     });
-  };
+  }, [tasks]);
 
-  filterHandler = (param) => {
-    this.setState((state) => {
-      const filters = state.filters.map((filter) => ({
+  const filterHandler = useCallback((param) => {
+    setFilters(prevFilters =>
+      prevFilters.map(filter => ({
         ...filter,
         active: filter.param === param,
-      }));
+      }))
+    );
+    setActiveFilter(param);
+  }, []);
 
-      return {
-        filters,
-        activeFilter: param,
-      };
-    });
-  };
-
-  componentDidMount() {
+  useEffect(() => {
     fetch('http://localhost:3001/todos')
       .then(response => response.json())
       .then(todos => {
-        this.setState({
-          tasks: todos.map(this.transformTask)
-        });
+        setTasks(todos.map(transformTask));
       });
-  }
+  }, [transformTask]);
 
-  render() {
-    const { tasks, filters } = this.state;
-    const filteredTasks = this.getFilteredTasks();
-    const todoCount = tasks.filter((task) => !task.completed).length;
+  const filteredTasks = getFilteredTasks();
+  const todoCount = tasks.filter(task => !task.completed).length;
 
-    return (
-      <section className="todoapp">
-        <header className="header">
-          <h1>todos</h1>
-          <NewTaskForm onTaskCreate={this.onTaskCreate} />
-        </header>
-        <section className="main">
-          <TaskList
-            tasks={filteredTasks}
-            onComplete={this.completeTaskHandler}
-            onDeleted={this.deleteTaskHandler}
-            onEditStart={this.editStartTaskHandler}
-            onEditEnd={this.editEndTaskHandler}
-          />
-        </section>
-        <Footer
-          todoCount={todoCount}
-          onFilter={this.filterHandler}
-          filters={filters}
-          onClearActive={this.onClearActive}
+  return (
+    <section className="todoapp">
+      <header className="header">
+        <h1>todos</h1>
+        <NewTaskForm onTaskCreate={onTaskCreate} />
+      </header>
+      <section className="main">
+        <TaskList
+          tasks={filteredTasks}
+          onComplete={completeTaskHandler}
+          onDeleted={deleteTaskHandler}
+          onEditStart={editStartTaskHandler}
+          onEditEnd={editEndTaskHandler}
         />
       </section>
-    );
-  }
-}
+      <Footer
+        todoCount={todoCount}
+        onFilter={filterHandler}
+        filters={filters}
+        onClearActive={onClearActive}
+      />
+    </section>
+  );
+};
+
+export default App;

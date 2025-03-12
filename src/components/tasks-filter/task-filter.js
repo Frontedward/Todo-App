@@ -1,29 +1,27 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 
 import './task-filter.css';
 
-export default class TaskFilter extends Component {
-  static propTypes = {
-    onFilter: PropTypes.func.isRequired,
-    filters: PropTypes.array.isRequired,
-  };
+const TaskFilter = ({ onFilter, filters }) => {
+  const filtersElems = filters.map((filter) => (
+    <li key={filter.param}>
+      <input type="radio"
+             name="filter"
+             id={filter.param}
+             checked={filter.active}
+             onChange={() => onFilter(filter.param)} />
 
-  render() {
-    const { onFilter, filters } = this.props;
+      <label htmlFor={filter.param}>{filter.label}</label>
+    </li>
+  ));
 
-    const filtersElems = filters.map((filter) => (
-      <li key={filter.param}>
-        <input type="radio"
-               name="filter"
-               id={filter.param}
-               checked={filter.active}
-               onChange={() => onFilter(filter.param)} />
+  return <ul className="filters">{filtersElems}</ul>;
+};
 
-        <label htmlFor={filter.param}>{filter.label}</label>
-      </li>
-    ));
+TaskFilter.propTypes = {
+  onFilter: PropTypes.func.isRequired,
+  filters: PropTypes.array.isRequired,
+};
 
-    return <ul className="filters">{filtersElems}</ul>;
-  }
-}
+export default TaskFilter;

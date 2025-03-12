@@ -1,46 +1,39 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import './new-task-form.css';
 
-export default class NewTaskForm extends React.Component {
-  static propTypes = {
-    onTaskCreate: PropTypes.func.isRequired,
-  };
+const NewTaskForm = ({ onTaskCreate }) => {
+  const [label, setLabel] = useState('');
 
-  state = {
-    label: '',
-  };
-
-  submitHandler = (e) => {
+  const submitHandler = (e) => {
     e.preventDefault();
-    const trimmedLabel = this.state.label.trim(); // Убираем пробелы с обоих концов
+    const trimmedLabel = label.trim();
     if (trimmedLabel) {
-      // Если строка не пустая, то вызываем onTaskCreate
-      this.props.onTaskCreate(trimmedLabel);
+      onTaskCreate(trimmedLabel);
     }
-    this.setState({
-      label: '',
-    });
+    setLabel('');
   };
 
-  changeHandler = (e) => {
-    this.setState({
-      label: e.target.value,
-    });
+  const changeHandler = (e) => {
+    setLabel(e.target.value);
   };
 
-  render() {
-    return (
-      <form onSubmit={this.submitHandler}>
-        <input
-          className="new-todo"
-          placeholder="What needs to be done?"
-          autoFocus
-          onChange={this.changeHandler}
-          value={this.state.label}
-        />
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={submitHandler}>
+      <input
+        className="new-todo"
+        placeholder="What needs to be done?"
+        autoFocus
+        onChange={changeHandler}
+        value={label}
+      />
+    </form>
+  );
+};
+
+NewTaskForm.propTypes = {
+  onTaskCreate: PropTypes.func.isRequired,
+};
+
+export default NewTaskForm;

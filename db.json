@@ -39,6 +39,20 @@
       "id": "e56e",
       "description": "запушить изменения",
       "createTime": "2025-03-12T10:07:25.031Z",
+      "completed": true,
+      "editing": false
+    },
+    {
+      "id": "0600",
+      "description": "переписать классы на ФК",
+      "createTime": "2025-03-12T13:27:20.299Z",
+      "completed": true,
+      "editing": false
+    },
+    {
+      "id": "c9f8",
+      "description": "пушкоммит",
+      "createTime": "2025-03-12T13:31:49.787Z",
       "completed": false,
       "editing": false
     }
