@@ -174,7 +174,7 @@ const App = () => {
   return (
     <section className="todoapp">
       <header className="header">
-        <h1>todos</h1>
+        <h1>tododo</h1>
         <NewTaskForm onTaskCreate={onTaskCreate} />
       </header>
       <section className="main">

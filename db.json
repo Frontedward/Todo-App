@@ -53,7 +53,14 @@
       "id": "c9f8",
       "description": "пушкоммит",
       "createTime": "2025-03-12T13:31:49.787Z",
-      "completed": false,
+      "completed": true,
+      "editing": false
+    },
+    {
+      "id": "4dcf",
+      "description": "Дима привет! БД работает!",
+      "createTime": "2025-03-13T08:55:46.156Z",
+      "completed": true,
       "editing": false
     }
   ]
